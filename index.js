@@ -1,7 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import fs from "fs";
-
+import cors from "cors";
 import userRoutes from "./routes/users.js";
 
 // // Membuat folder
@@ -16,8 +16,9 @@ if(!fs.existsSync(dataPath)){
 }
 
 const app=express();
-const PORT=8080;
-	
+const PORT=5000;
+
+app.use(cors());
 app.use(bodyParser.json());
 
 app.use("/users", userRoutes);
