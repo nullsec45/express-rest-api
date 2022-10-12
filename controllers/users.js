@@ -50,7 +50,8 @@ export const deleteUser=(req,res) =>{
 export const updateUser=(req,res) => {
     const {id}=req.params;
     const {firstName, lastName, age}=req.body;
-
+    console.log(firstName);
+    
     const user=users.find((user) => user.id === id);
     let index=users.indexOf(user);
 
