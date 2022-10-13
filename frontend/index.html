@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Implementasion API</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+</head>
+<body>
+    <h3 class="text-center mt-3">Users</h3>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <a href="http://127.0.0.1:8080/add.html" class="btn btn-primary">Add Data</a>
+            <div class="alert alert-success mt-3 mb-3 d-none" role="alert">
+                
+            </div>
+
+            <table class="table table-striped text-center">
+                <thead>
+                    <th scope="col">No.</th>
+                    <th scope="col">First Name</th>
+                    <th scope="col">Last Name</th>
+                    <th scope="col">Age</th>
+                    <th scope="col">Action</th>
+                </thead>
+            </table>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Update Data</h1>
+                    <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+                </div>
+                <div class="modal-body">
+                    
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        const table=document.querySelector("table");
+        const alert=document.querySelector(".alert");
+        const modalBody=document.querySelector(".modal-body");
+        let form;
+
+        function dataUsers(data){
+            data.forEach((data, index) => {
+                displayData(index+1, data.firstName, data.lastName, data.age, data.id);  
+            })
+        }
+        function displayData(index, firstName, lastName, age, id){
+                let row=table.insertRow(index);
+                let cell1=row.insertCell(0);
+                let cell2=row.insertCell(1);
+                let cell3=row.insertCell(2);
+                let cell4=row.insertCell(3);
+                let cell5=row.insertCell(4);
+                cell1.innerHTML=index;
+                cell2.innerHTML=firstName;
+                cell3.innerHTML=lastName;
+                cell4.innerHTML=age;
+                cell5.innerHTML=`
+                    <a class="btn btn-warning edit" onclick="editData('${id}')" data-bs-toggle="modal" data-bs-target="#exampleModal">Edit</a>
+                    <a class="btn btn-danger" onclick="deleteData('${id}')">Delete</a>
+                `;
+
+        }
+
+        fetch("http://localhost:5000/users",{method:"GET"})
+            .then(response => response.json())
+            .then(response => dataUsers(response));
+
+        function deleteData(id){
+            fetch(`http://localhost:5000/users/${id}`,{
+                method:"DELETE",
+                headers:{
+                    "Content-type":"application/json"
+                }
+            }).then(res => {
+                if(res.ok) {
+                    alert.classList.remove("d-none");
+			        alert.classList.add("d-block");
+				    alert.textContent=`Berhasil menghapus user ${id}`;
+                }else{
+                    console.log(`Gagal menghapus user id ${id}`)
+                }
+                setTimeout(() => {
+	    			alert.classList.add("d-none")
+    			}, 4000)
+                document.location.href="/";
+
+                return res;
+            });
+            //   .catch(error =>  console.log(error))
+        }
+
+        function editData(id){
+            fetch(`http://localhost:5000/users/${id}`,{method:"GET"})
+            .then(response => response.json())
+            .then(response => {
+                    modalBody.innerHTML=`
+                    <form id="form">
+                        <div class="mb-3">
+                            <label for="firstname" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="firstname" name="firstName" value='${response.firstName}'>
+                        </div>
+                        <div class="mb-3">
+                            <label for="lastname" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="lastname" name="lastName" value='${response.lastName}'>
+                        </div>
+                        <div class="mb-3">
+                            <label for="age" class="form-label">Age</label>
+                            <input type="text" class="form-control" id="age" name="age" value='${response.age}'>
+                        </div>
+                        <button class="btn btn-success float-end btn-add" type="submit" onClick="updateData('${response.id}')">Update</button>
+	                    <button class="btn btn-danger float-end me-3" onclick="document.location.href='/'; return false">Cancel</button>
+                    </form> 
+                    `;
+                }
+            );
+        }
+        
+        async function updateData(id){
+            const res=await fetch(`http://localhost:5000/users/${id}`,{
+				method:"PATCH",	
+				body:JSON.stringify({firstName, lastName, age}),
+				headers: {
+     			   "Content-type": "application/json; charset=UTF-8"
+   				}
+			});
+			const result=await res.json();
+
+			if(!res.ok){
+			    alert.classList.remove("d-none alert-success");
+			    alert.classList.add("d-block alert-danger");
+				alert.textContent="Gagal mengirim data";
+			}else{
+				alert.classList.remove("d-none");
+			    alert.classList.add("d-block");
+				alert.textContent=result.msg;
+			}
+			setTimeout(() => {
+				alert.classList.add("d-none")
+			}, 4000)
+
+        }
+
+
+    </script>
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+</body>
+</html>

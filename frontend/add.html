@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Add Data</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+</head>
+<body>
+	<h1 class="text-center mt-5">Add Data User</h1>
+	
+	<div class="row justify-content-center">
+			<div class="col-md-8">
+				<div class="alert alert-success d-none" role="alert">
+					
+				</div>
+		       <form id="form">
+				 <div class="mb-3">
+				    <label for="firstname" class="form-label">First Name</label>
+	   				<input type="text" class="form-control" id="firstname" name="firstName">
+	             </div>
+	             <div class="mb-3">
+				    <label for="lastname" class="form-label">Last Name</label>
+	   				<input type="text" class="form-control" id="lastname" name="lastName">
+	             </div>
+	             <div class="mb-3">
+				    <label for="age" class="form-label">Age</label>
+	   				<input type="text" class="form-control" id="age" name="age">
+	             </div>
+	             <button class="btn btn-success float-end btn-add" type="submit">Add</button>
+	             <button class="btn btn-danger float-end me-3" onclick="document.location.href='/'; return false">Cancel</button>
+	       	   </form> 
+			</div>
+	</div>
+	<script type="text/javascript">
+		const buttonAdd=document.querySelector(".btn-add");
+		const form=document.querySelector("#form");
+		const alert=document.querySelector(".alert");
+		form.addEventListener("submit", function(e){
+			 e.preventDefault();
+			const firstName=form.querySelector("input[name='firstName']").value;
+			const lastName=form.querySelector("input[name='lastName']").value;
+			const age=form.querySelector("input[name='age']").value;
+			send(firstName, lastName, age)
+		});
+
+		async function send(firstName, lastName, age){
+			const res=await fetch("http://localhost:5000/users",{
+				method:"POST",	
+				body:JSON.stringify({firstName, lastName, age}),
+				headers: {
+     			   "Content-type": "application/json; charset=UTF-8"
+   				}
+			});
+			const result=await res.json();
+
+			if(!res.ok){
+			    alert.classList.remove("d-none alert-success");
+			    alert.classList.add("d-block alert-danger");
+				alert.textContent="Gagal mengirim data";
+			}else{
+				alert.classList.remove("d-none");
+			    alert.classList.add("d-block");
+				alert.textContent=result.msg;
+			}
+			setTimeout(() => {
+				alert.classList.add("d-none")
+			}, 4000)
+		}
+	</script>
+</body>
+</html>
