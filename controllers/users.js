@@ -1,7 +1,6 @@
 import {v4 as uuidv4} from "uuid";
 import fs from "fs";
 import {readFile, writeFile} from "fs";
-import cors from "cors";
 
 
 const fileBuffer=fs.readFileSync("./data.json","utf-8");
